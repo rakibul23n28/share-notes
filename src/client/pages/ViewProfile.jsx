@@ -11,7 +11,7 @@ const ViewProfile = () => {
   const [notes, setNotes] = useState([]); // Notes of the user
   const [expandedNoteId, setExpandedNoteId] = useState(null); // To toggle note content expansion
 
-  // Fetch user profile data
+  // Fetch user profile dataa
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
