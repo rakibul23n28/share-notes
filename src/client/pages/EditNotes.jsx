@@ -10,20 +10,20 @@ const EditNotes = () => {
   const { noteid } = useParams(); // Get the note ID from URL params
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [status, setStatus] = useState("public"); // Add status if needed
+  const [status, setStatus] = useState("public");
   const navigate = useNavigate();
 
   // Fetch the existing note data
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        const response = await axios.get(`/api/notes/${noteid}`, {
+        const response = await axios.get(`/api/notes/edit/${noteid}`, {
           headers: getAuthHeaders(),
         });
-        const { title, content, status } = response.data.note; // Fetch status as well if needed
+        const { title, content, status } = response.data.note;
         setTitle(title);
         setContent(content);
-        setStatus(status); // Set the current status
+        setStatus(status);
       } catch (err) {
         console.error(err);
         alert("Failed to fetch the note.");
@@ -55,7 +55,6 @@ const EditNotes = () => {
           headers: getAuthHeaders(),
         }
       );
-      console.log(response.data);
       alert("Note updated successfully!");
       navigate("/profile");
     } catch (err) {
@@ -67,13 +66,19 @@ const EditNotes = () => {
   return (
     <Layout>
       <div className="flex flex-col items-center w-full px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Edit Note</h1>
+        <h1 className="text-4xl font-extrabold text-blue-600 mb-8">
+          Edit Note
+        </h1>
         <form
           onSubmit={handleEdit}
-          className="flex flex-col gap-8 w-full max-w-4xl"
+          className="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl border"
         >
-          <div className="mb-8">
-            <label htmlFor="title" className="block font-semibold mb-1">
+          {/* Title Input */}
+          <div className="mb-6">
+            <label
+              htmlFor="title"
+              className="block text-lg font-semibold mb-2 text-gray-700"
+            >
               Title
             </label>
             <input
@@ -81,22 +86,31 @@ const EditNotes = () => {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
+              placeholder="Enter note title"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-8">
-            <label htmlFor="content" className="block font-semibold mb-2">
+
+          {/* Content Input */}
+          <div className="mb-6">
+            <label
+              htmlFor="content"
+              className="block text-lg font-semibold mb-2 text-gray-700"
+            >
               Content
             </label>
-            <div className="h-96">
+            <div className="h-96 bg-gray-50 rounded-lg overflow-hidden shadow-inner">
               <QuillEditor value={content} onChange={setContent} />
             </div>
           </div>
-          {/* Radio Buttons for Note Status */}
-          <div className="mb-8">
-            <label className="block font-semibold mb-2">Status</label>
+
+          {/* Status Radio Buttons */}
+          <div className="mb-6">
+            <label className="block text-lg font-semibold mb-2 text-gray-700">
+              Status
+            </label>
             <div className="flex items-center gap-6">
-              <div>
+              <div className="flex items-center">
                 <input
                   type="radio"
                   id="public"
@@ -104,11 +118,13 @@ const EditNotes = () => {
                   value="public"
                   checked={status === "public"}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="mr-2"
+                  className="mr-2 focus:ring-blue-500"
                 />
-                <label htmlFor="public">Public</label>
+                <label htmlFor="public" className="text-gray-700">
+                  Public
+                </label>
               </div>
-              <div>
+              <div className="flex items-center">
                 <input
                   type="radio"
                   id="protected"
@@ -116,18 +132,22 @@ const EditNotes = () => {
                   value="protected"
                   checked={status === "protected"}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="mr-2"
+                  className="mr-2 focus:ring-blue-500"
                 />
-                <label htmlFor="protected">Protected</label>
+                <label htmlFor="protected" className="text-gray-700">
+                  Protected
+                </label>
               </div>
             </div>
           </div>
-          <div className="mb-8">
+
+          {/* Submit Button */}
+          <div>
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-300"
             >
-              Update
+              Update Note
             </button>
           </div>
         </form>

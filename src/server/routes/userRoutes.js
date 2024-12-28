@@ -26,9 +26,10 @@ const router = express.Router();
 
 // Routes
 router.get("/", validateToken, getUser);
+router.put("/update", validateToken, upload.single("profilePic"), updateUser);
+router.get("/:id", getUser);
 router.get("/exists/:username", existUsername);
 
 // Add the multer middleware to handle file upload on the /update route
-router.put("/update", validateToken, upload.single("profilePic"), updateUser);
 
 export default router;

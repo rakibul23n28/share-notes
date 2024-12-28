@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Create from "./pages/Create";
 import EditNotes from "./pages/EditNotes";
 import NoteDetails from "./pages/NoteDetails";
+import ViewProfile from "./pages/ViewProfile";
 //utils
 import RedirectIfAuthenticated from "./utils/RedirectIfAuthenticated";
 
@@ -18,7 +19,8 @@ const App = () => (
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/note/:noteid" element={<NoteDetails />} />
+        <Route path="/note/:shareId" element={<NoteDetails />} />
+        <Route path="/profile/:id" element={<ViewProfile />} />
 
         <Route
           path="/login"

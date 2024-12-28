@@ -1,19 +1,16 @@
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getAuthHeaders } from "../utils/Helper";
+import { getAuthHeaders, timeAgo } from "../utils/Helper";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(true);
-  const [searchView, setSearchView] = useState(true);
+  const [searchView, setSearchView] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const homeSearchOnly = location.pathname === "/";
 
   // Handle search query input
   const handleSearchChange = (e) => {
@@ -38,9 +35,9 @@ const Navbar = () => {
     }
   };
 
-  // Redirect to note details or any other action when clicking a search result
-  const handleResultClick = (noteId) => {
-    navigate(`/note/${noteId}`);
+  // Redirect to note details using shareId
+  const handleResultClick = (shareId) => {
+    navigate(`/note/${shareId}`);
   };
 
   return (
@@ -58,9 +55,9 @@ const Navbar = () => {
       </button>
 
       {/* Search View */}
-      {searchView && homeSearchOnly && (
-        <div className="absolute top-0 left-0 w-screen -z-50">
-          <div className="shadow-md flex flex-row ml-16 mr-6 justify-center rounded-lg bg-white gap-2">
+      {searchView && (
+        <div className="absolute top-0 left-0 w-screen mt-1 -z-30">
+          <div className="shadow-md border flex flex-row ml-16 mr-6 justify-center rounded-lg bg-white gap-2">
             <div className="flex w-full">
               <input
                 type="text"
@@ -91,13 +88,30 @@ const Navbar = () => {
               <h3 className="font-semibold">Search Results</h3>
               <ul className="space-y-2 mt-2">
                 {searchResults.map((note) => (
-                  <li
-                    key={note.id}
-                    onClick={() => handleResultClick(note.id)}
-                    className="cursor-pointer hover:bg-gray-200 p-2 rounded"
+                  <div
+                    key={note.shareId}
+                    onClick={() => handleResultClick(note.shareId)}
+                    className="cursor-pointer hover:shadow-md transition-shadow duration-300 bg-white border rounded-lg p-4 mb-2 flex flex-col items-start space-y-2"
                   >
-                    {note.title}
-                  </li>
+                    {/* Header Section */}
+                    <div className="flex items-center space-x-4">
+                      <div className="flex flex-col">
+                        <h3 className="font-semibold text-gray-800">
+                          {note.username}
+                        </h3>
+                        <h6 className="text-gray-600 text-sm">
+                          {timeAgo(note.createdAt)}
+                        </h6>
+                      </div>
+                    </div>
+
+                    {/* Note Title */}
+                    <div className="w-full">
+                      <h4 className="font-medium text-gray-700 hover:text-red-500">
+                        {note.title}
+                      </h4>
+                    </div>
+                  </div>
                 ))}
               </ul>
             </div>
@@ -108,15 +122,13 @@ const Navbar = () => {
       {/* Navbar Buttons */}
       {menuOpen && (
         <div className="flex flex-col space-y-6 w-full items-center">
-          {homeSearchOnly && (
-            <button
-              className="flex flex-col items-center text-gray-700 hover:text-red-500"
-              onClick={() => setSearchView(!searchView)}
-            >
-              <i className="fas fa-search text-2xl"></i>
-              <span className="text-sm">Search</span>
-            </button>
-          )}
+          <button
+            className="flex flex-col items-center text-gray-700 hover:text-red-500"
+            onClick={() => setSearchView(!searchView)}
+          >
+            <i className="fas fa-search text-2xl"></i>
+            <span className="text-sm">Search</span>
+          </button>
           <Link to="/">
             <button className="flex flex-col items-center text-gray-700 hover:text-red-500">
               <i className="fas fa-home text-2xl mb-1"></i>

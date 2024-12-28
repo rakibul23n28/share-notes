@@ -29,7 +29,7 @@ export const getUser = async (req, res) => {
   try {
     const [users] = await pool.query(
       "SELECT id, username, email, bio, profilePicUrl FROM User WHERE id = ?",
-      [req.user.id]
+      [req.params.id]
     );
     const user = users[0];
 

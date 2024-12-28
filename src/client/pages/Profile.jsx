@@ -21,7 +21,7 @@ const Profile = () => {
 
   // Fetch notes when the user is available
   useEffect(() => {
-    if (user && notes.length === 0) {
+    if (user) {
       const fetchNotes = async () => {
         try {
           const response = await axios.get(`/api/notes/all/${user.id}`, {
@@ -29,14 +29,13 @@ const Profile = () => {
           });
 
           setNotes(response.data.notes);
-          console.log(response.data.notes);
         } catch (err) {
           console.error("Failed to fetch notes:", err);
         }
       };
       fetchNotes();
     }
-  }, [user, notes]);
+  }, [user]);
 
   // Check username availability
   useEffect(() => {
@@ -202,22 +201,20 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-8">
         <div className="w-full p-6  relative ">
           <div className="space-y-6 flex w-full items-center justify-center">
             {/* Profile Picture and Bio Section */}
             <div>
               <div className="flex flex-col items-center justify-center space-x-6">
-                <div className="">
-                  {user.profilePicUrl ? (
+                <div className="flex flex-col items-center">
+                  <div className="rounded-full bg-blue-100 h-36 w-36 flex items-center justify-center text-blue-500 font-bold text-lg">
                     <img
-                      src={user.profilePicUrl}
-                      alt={`${user.username}'s profile`}
-                      className="w-24 h-24 rounded-full object-cover border"
+                      src={user.profilePicUrl || "/uploads/defuser.png"} // Use default image if profilePicUrl does not exist
+                      alt={user.username}
+                      className="rounded-full w-full h-full object-cover"
                     />
-                  ) : (
-                    <i className="fas fa-user-circle text-6xl text-gray-500 "></i>
-                  )}
+                  </div>
                   <h1 className="text-2xl font-bold">{user.username}</h1>
                 </div>
                 <div>
@@ -252,57 +249,72 @@ const Profile = () => {
             Your Notes
           </h2>
           <div className="flex flex-col items-center">
-            {notes ? (
+            {notes.length > 0 ? (
               notes.map((note) => (
                 <div
                   key={note.id}
-                  className={`border p-4 rounded-lg overflow-hidden transition-all duration-300 w-auto m-4 ${
+                  className={`border p-4 rounded-lg shadow-md transition-all duration-300 w-full max-w-lg my-8 ${
                     expandedNoteId === note.id ? "h-auto" : "h-52"
                   }`}
                   onDoubleClick={() => toggleNoteExpansion(note.id)}
                   style={{ cursor: "pointer" }}
                 >
                   <div className="flex flex-col mb-6">
-                    {/* Display Shear ID with Copy button */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-600">
-                        Shear ID: {note.shareId}
-                      </span>
-                      <span className="text-blue-500">{note.shearId}</span>
+                    {/* Display Share ID with Copy button */}
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-600">
+                        <span>Share ID:</span>{" "}
+                        <span className="text-blue-500">{note.shareId}</span>
+                      </div>
                       <button
                         onClick={() => copyToClipboard(note.shareId)}
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-500 text-sm hover:underline"
                       >
                         Copy
                       </button>
                     </div>
-                    <div className="notebar flex items-center justify-between rounded-lg">
-                      <div>
-                        <h3 className="font-semibold">{user.username}</h3>
-                        <h6 className="text-gray-600 text-[10px]">
-                          {timeAgo(note.createdAt)}
-                        </h6>
-                      </div>
-                      <div className="flex items-center space-x-3 text-gray-600">
-                        <Link to={`/edit/${note.id}`}>
-                          <h3 className="hover:underline cursor-pointer text-green-500">
-                            Edit
-                          </h3>
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(note.id)}
-                          className="hover:underline cursor-pointer text-red-500"
-                        >
-                          Delete
+                    <div className="flex items-center justify-center space-x-6">
+                      <Link to={`/edit/${note.id}`}>
+                        <button className="text-green-500 text-sm hover:underline">
+                          Edit
                         </button>
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(note.id)}
+                        className="text-red-500 text-sm hover:underline"
+                      >
+                        Delete
+                      </button>
+                      <span
+                        className={`status-label ${
+                          note.status === "public"
+                            ? "text-green-500"
+                            : "text-yellow-500"
+                        }`}
+                      >
+                        {note.status.charAt(0).toUpperCase() +
+                          note.status.slice(1)}
+                      </span>
+                    </div>
+
+                    {/* Note meta information */}
+                    <div className="flex items-center justify-between mt-2 overflow-hidden">
+                      <div className="w-full pr-4">
+                        <h3 className="font-semibold text-lg truncate">
+                          {note.title}
+                        </h3>
+                        <p className="text-gray-500 text-xs">
+                          {timeAgo(note.createdAt)} by{" "}
+                          {note.username || user.username}
+                        </p>
                       </div>
                     </div>
                   </div>
 
+                  {/* Note content */}
                   <div className="bg-gray-100 rounded-lg p-4">
-                    <h3 className="font-medium mb-3">{note.title}</h3>
                     <div
-                      className={`note-content transition-all duration-300 ${
+                      className={`note-content text-sm text-gray-800 transition-all duration-300  ${
                         expandedNoteId === note.id
                           ? "line-clamp-none"
                           : "line-clamp-5"
@@ -313,7 +325,7 @@ const Profile = () => {
                 </div>
               ))
             ) : (
-              <p className="text-center">No notes found.</p>
+              <p className="text-center text-gray-600 mt-4">No notes found.</p>
             )}
           </div>
 

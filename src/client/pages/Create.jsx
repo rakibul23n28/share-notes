@@ -3,47 +3,37 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import QuillEditor from "../components/QuillEditor";
 import axios from "axios";
-
 import { getAuthHeaders } from "../utils/Helper.js";
 
 // Function to generate a random shareId (alphanumeric string)
 const generateShareId = () => {
-  return Math.random().toString(36).substr(2, 11); // Generates a random string of length 9
+  return Math.random().toString(36).substr(2, 11);
 };
 
 const Create = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [shareId, setShareId] = useState(""); // State for share ID
-  const [status, setStatus] = useState("public"); // State for note status (public/protected)
+  const [shareId, setShareId] = useState("");
+  const [status, setStatus] = useState("public");
   const navigate = useNavigate();
 
-  // Set a random shareId when the component mounts
   useEffect(() => {
     setShareId(generateShareId());
   }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
-
     if (!title || !content || !shareId) {
-      // Check if share ID, title, and content are provided
       alert("Title, content, and share ID are required!");
       return;
     }
 
-    const noteData = {
-      title,
-      content,
-      shareId, // Include share ID in the data
-      status, // Include status in the data
-    };
+    const noteData = { title, content, shareId, status };
 
     try {
       const response = await axios.post("/api/notes", noteData, {
         headers: getAuthHeaders(),
       });
-      console.log(response.data);
       alert("Note created successfully!");
       navigate("/");
     } catch (err) {
@@ -55,13 +45,19 @@ const Create = () => {
   return (
     <Layout>
       <div className="flex flex-col items-center w-full px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Create Note</h1>
+        <h1 className="text-4xl font-extrabold mb-8 text-blue-600">
+          Create Note
+        </h1>
         <form
           onSubmit={handleCreate}
-          className="flex flex-col gap-8 w-full max-w-4xl"
+          className="bg-white shadow-lg rounded-lg p-8 w-full max-w-4xl border"
         >
-          <div className="mb-8">
-            <label htmlFor="title" className="block font-semibold mb-1">
+          {/* Title Input */}
+          <div className="mb-6">
+            <label
+              htmlFor="title"
+              className="block text-lg font-semibold mb-2 text-gray-700"
+            >
               Title
             </label>
             <input
@@ -69,20 +65,30 @@ const Create = () => {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
+              placeholder="Enter note title"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="mb-8">
-            <label htmlFor="content" className="block font-semibold mb-2">
+
+          {/* Content Input */}
+          <div className="mb-6">
+            <label
+              htmlFor="content"
+              className="block text-lg font-semibold mb-2 text-gray-700"
+            >
               Content
             </label>
-            <div className="h-96">
+            <div className="h-96 bg-gray-50 rounded-lg overflow-hidden shadow-inner">
               <QuillEditor value={content} onChange={setContent} />
             </div>
           </div>
-          {/* Input field for Share ID */}
-          <div className="mb-8">
-            <label htmlFor="shareId" className="block font-semibold mb-1">
+
+          {/* Share ID (Read-Only) */}
+          <div className="mb-6">
+            <label
+              htmlFor="shareId"
+              className="block text-lg font-semibold mb-2 text-gray-700"
+            >
               Share ID
             </label>
             <input
@@ -90,14 +96,17 @@ const Create = () => {
               type="text"
               value={shareId}
               readOnly
-              className="w-full px-3 py-2 border rounded-lg bg-gray-100"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 focus:outline-none"
             />
           </div>
-          {/* Radio Buttons for Note Status */}
-          <div className="mb-8">
-            <label className="block font-semibold mb-2">Status</label>
+
+          {/* Note Status */}
+          <div className="mb-6">
+            <label className="block text-lg font-semibold mb-2 text-gray-700">
+              Status
+            </label>
             <div className="flex items-center gap-6">
-              <div>
+              <div className="flex items-center">
                 <input
                   type="radio"
                   id="public"
@@ -105,11 +114,13 @@ const Create = () => {
                   value="public"
                   checked={status === "public"}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="mr-2"
+                  className="mr-2 focus:ring-blue-500"
                 />
-                <label htmlFor="public">Public</label>
+                <label htmlFor="public" className="text-gray-700">
+                  Public
+                </label>
               </div>
-              <div>
+              <div className="flex items-center">
                 <input
                   type="radio"
                   id="protected"
@@ -117,18 +128,22 @@ const Create = () => {
                   value="protected"
                   checked={status === "protected"}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="mr-2"
+                  className="mr-2 focus:ring-blue-500"
                 />
-                <label htmlFor="protected">Protected</label>
+                <label htmlFor="protected" className="text-gray-700">
+                  Protected
+                </label>
               </div>
             </div>
           </div>
-          <div className="mb-8">
+
+          {/* Submit Button */}
+          <div>
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-300"
             >
-              Create
+              Create Note
             </button>
           </div>
         </form>

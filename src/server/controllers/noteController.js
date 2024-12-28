@@ -6,11 +6,15 @@ export const getNotes = async (req, res) => {
       `
       SELECT 
         Note.id, 
+        Note.userId,
         Note.title, 
         Note.content, 
         Note.createdAt, 
         Note.status, 
-        User.username 
+        User.username ,
+        User.profilePicUrl,
+
+        Note.shareId
       FROM Note
       JOIN User ON Note.userId = User.id
       WHERE Note.status = ?`,
@@ -28,9 +32,24 @@ export const userNotes = async (req, res) => {
   try {
     const { userid } = req.params;
 
-    const [notes] = await pool.query("SELECT * FROM Note WHERE id = ?", [
+    const [notes] = await pool.query("SELECT * FROM Note WHERE userId = ?", [
       userid,
     ]);
+
+    res.json({ notes });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server error during note retrieval" });
+  }
+};
+export const publicUserNotes = async (req, res) => {
+  try {
+    const { userid } = req.params;
+
+    const [notes] = await pool.query(
+      "SELECT * FROM Note WHERE userId = ? AND status = ?",
+      [userid, "public"]
+    );
 
     res.json({ notes });
   } catch (error) {
@@ -42,9 +61,29 @@ export const userNotes = async (req, res) => {
 export const getNote = async (req, res) => {
   try {
     const [notes] = await pool.query(
-      "SELECT id, title,content,createdAt,status FROM Note WHERE id = ? and status = ?",
-      [req.params.noteid, "public"]
+      `
+      SELECT 
+        Note.id, 
+        Note.title, 
+        Note.userId,
+        Note.content, 
+        Note.createdAt, 
+        Note.status, 
+        Note.shareId, 
+        User.username,
+        User.profilePicUrl
+      FROM 
+        Note 
+      JOIN 
+        User 
+      ON 
+        Note.userId = User.id 
+      WHERE 
+        Note.shareId = ? 
+      `,
+      [req.params.shareId]
     );
+
     const note = notes[0];
     if (!note) {
       return res.status(404).json({ msg: "Note not found" });
@@ -124,7 +163,21 @@ export const searchData = async (req, res) => {
 
     // Search for notes where the title or shareId contains the query (case-insensitive)
     const [notes] = await pool.query(
-      "SELECT id, title,content,createdAt,status FROM Note WHERE shareId = ?",
+      `
+      SELECT 
+        Note.title, 
+        Note.createdAt, 
+        Note.shareId, 
+        User.username 
+      FROM 
+        Note 
+      JOIN 
+        User 
+      ON 
+        Note.userId = User.id 
+      WHERE 
+        Note.shareId = ? 
+      `,
       [query]
     );
 
@@ -137,5 +190,35 @@ export const searchData = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Server error during search" });
+  }
+};
+
+export const getEditNote = async (req, res) => {
+  try {
+    const [notes] = await pool.query(
+      `
+      SELECT 
+        Note.id, 
+        Note.title, 
+        Note.content, 
+        Note.createdAt, 
+        Note.status, 
+        Note.shareId
+      FROM 
+        Note 
+      WHERE 
+        Note.id = ? 
+      `,
+      [req.params.noteid]
+    );
+
+    const note = notes[0];
+    if (!note) {
+      return res.status(404).json({ msg: "Note not found" });
+    }
+    res.json({ note });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server error during note retrieval" });
   }
 };
