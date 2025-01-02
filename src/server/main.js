@@ -22,8 +22,13 @@ async function testDbConnection() {
   await testDbConnection();
 
   const PORT = process.env.PORT || 5000;
+  const HOST = process.env.HOST || "0.0.0.0";
 
-  ViteExpress.listen(app, PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
+  // Create the server manually
+  const server = app.listen(PORT, HOST, () =>
+    console.log(`Server is running on http://${HOST}:${PORT}`)
+  );
+
+  // Bind ViteExpress to the existing server
+  ViteExpress.bind(app, server);
 })();

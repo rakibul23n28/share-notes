@@ -1,29 +1,27 @@
 import React, { useEffect, useRef } from "react";
 import Quill from "quill";
-import "quill/dist/quill.snow.css"; // Import Quill styles
+import "quill/dist/quill.snow.css";
 
 const QuillEditor = ({ value, onChange }) => {
   const editorRef = useRef(null);
-  const quillInstance = useRef(null); // Keep a reference to the Quill instance
+  const quillInstance = useRef(null);
 
   useEffect(() => {
     if (editorRef.current && !quillInstance.current) {
-      // Initialize Quill only once
       quillInstance.current = new Quill(editorRef.current, {
         theme: "snow",
         modules: {
           toolbar: [
-            [{ header: [1, 2, 3, false] }], // Header sizes
-            ["bold", "italic", "underline"], // Formatting
-            [{ align: [] }], // Alignment
-            [{ list: "ordered" }, { list: "bullet" }], // Lists
-            [{ color: [] }, { background: [] }], // Text colors and background
-            ["link", "image"], // Links and images
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline"],
+            [{ align: [] }],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ color: [] }, { background: [] }],
+            ["link", "image"],
           ],
         },
       });
 
-      // Update value when content changes
       quillInstance.current.on("text-change", () => {
         const html = quillInstance.current.root.innerHTML;
         onChange(html);
@@ -32,7 +30,6 @@ const QuillEditor = ({ value, onChange }) => {
   }, [onChange]);
 
   useEffect(() => {
-    // Update editor content if `value` changes externally
     if (
       quillInstance.current &&
       value !== quillInstance.current.root.innerHTML
@@ -41,7 +38,18 @@ const QuillEditor = ({ value, onChange }) => {
     }
   }, [value]);
 
-  return <div ref={editorRef} className="w-full h-64 border rounded-lg"></div>;
+  return (
+    <div
+      ref={editorRef}
+      style={{
+        width: "100%",
+        height: "90%",
+        border: "1px solid #ccc",
+        overflowY: "auto",
+        borderRadius: "8px",
+      }}
+    ></div>
+  );
 };
 
 export default QuillEditor;
